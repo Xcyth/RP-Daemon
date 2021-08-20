@@ -8,7 +8,7 @@ P.S: add sudo before the commands only if you aren't logged in as `root` and hav
 1. Clone the repository to the `/root` folder by doing `sudo cd /root` and then `sudo git clone https://github.com/Xcyth/RP-Daemon/`
 2. CD into the daemon `sudo cd /root/RP-Daemon`
 3. Run `sudo npm i`
-4. Run `nano /etc/systemd/system/proxy.service` and paste the following in there
+4. Run `sudo nano /etc/systemd/system/proxy.service` and paste the following in there
    ```
    [Unit]
    Description=Reverse Proxy Daemon
