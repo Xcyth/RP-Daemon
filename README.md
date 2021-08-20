@@ -16,10 +16,10 @@ P.S: add sudo before the commands only if you aren't logged in as `root` and hav
    [Service]
    User=root
    #Group=some_group
-   WorkingDirectory=/root/proxy-daemon
+   WorkingDirectory=/root/RP-Daemon
    LimitNOFILE=4096
-   PIDFile=/root/DBHS-Daemon/daemon.pid
-   ExecStart=/usr/bin/node /root/proxy-daemon/src/index.js
+   PIDFile=/root/RP-Daemon/daemon.pid
+   ExecStart=/usr/bin/node /root/RP-Daemon/src/index.js
    Restart=always
    
    [Install]
