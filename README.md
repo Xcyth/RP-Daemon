@@ -26,7 +26,7 @@ P.S: add sudo before the commands only if you aren't logged in as `root` and hav
    WantedBy=multi-user.target
  5. Save it and exit out
  6. Run `systemctl enable --now proxy.service`
- 7. Finally start the daemon by running `systemctl start proxy`
+ 7. Finally start the daemon by running `systemctl start proxy` and run `ps -ef | grep -v grep | grep proxy | awk '{ print $2 }' > proxy.pid` to generate the PID file
 
 # Contributing
 If you would like to contribute to this repository, feel free to make pull requests/
