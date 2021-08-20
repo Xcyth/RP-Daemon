@@ -1,4 +1,5 @@
 const express = require('express')
+const bodyParser = require('body-parser')
 const app = express();
 
 const { port, password } = require('../config.json')
@@ -30,13 +31,16 @@ const protectedRoute = async (req, res, next) => {
     next()
 };
 
+app.use(bodyParser.json())
+
 app.get('/', (req, res) => {
     res.send("OwO what are you doing here?")
 })
 
 app.post('/proxy/new', protectedRoute, (req, res) => {
     let data = req.body;
-    let { url, destination } = data;
+    let url = data.url;
+    let destination = data.destination;
 
     let proxyFileTemplate = `<VirtualHost *:80>
 	ServerName ${url}
@@ -80,6 +84,15 @@ app.post('/proxy/new', protectedRoute, (req, res) => {
                 status: 200,
                 message: "Successfully linked domain."
             })
+        } else if (response.includes("Certificate not yet due for renewal")) {
+            fs.writeFileSync(`${proxyFileDir}/${url}.conf`, proxyFileTemplate)
+            exec('service apache2 restart', (error, stdout) => {})
+
+            res.status(200).json({
+                error: false,
+                status: 200,
+                message: "Successfully linked domain."
+            })
         } else {
             res.status(500).json({
                 error: true,
@@ -88,11 +101,11 @@ app.post('/proxy/new', protectedRoute, (req, res) => {
             })
         }
     })
+    
 })
 
 app.post('/proxy/delete', protectedRoute, (req, res) => {
-    let data = req.body;
-    let { url } = data;
+    let { url } = req.body;
 
     if (!url) {
         res.status(204).json({
