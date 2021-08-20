@@ -1,0 +1,20 @@
+<VirtualHost *:80>
+	ServerName {url}
+	RewriteEngine On
+	RewriteCond %{HTTPS} !=on
+	RewriteRule ^/?(.*) https://{url}/$1 [R,L] 
+</VirtualHost>
+<VirtualHost *:443>
+	ServerName {url}
+	ProxyRequests off
+	SSLProxyEngine on
+    ProxyPreserveHost On
+    SSLEngine on
+    SSLCertificateFile /etc/letsencrypt/live/{url}/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/{url}/privkey.pem
+                                             
+    <Location />
+		ProxyPass {destination}
+        ProxyPassReverse {destination}
+    </Location>
+</VirtualHost>
