@@ -1,131 +1,108 @@
-const express = require('express')
-const bodyParser = require('body-parser')
+const express = require('express');
+const { join } = require('path');
+const { writeFileSync, readFileSync } = require('fs');
+const { exec } = require('child_process');
 const app = express();
 
-const { port, password } = require('../config.json')
-const fs = require('fs');
-const { exec } = require('child_process');
+const { port, password } = require(join(__dirname, '../config.json'));
 
-const proxyFileDir = "/etc/apache2/sites-enabled"
+const template = readFileSync(join(__dirname, '../template.txt'));
+
+const proxyFileDir = "/etc/apache2/sites-enabled";
 
 const protectedRoute = async (req, res, next) => {
     const reqToken = req.headers.authorization;
     if (!reqToken) {
-        res.status(403).json({
+        return res.status(400).json({
             error: true,
-            status: 403,
+            status: 400,
             message: "You did not provide any authorization headers"
         });
-        return;
     }
 
     if (reqToken !== password) {
-        res.status(403).json({
+        return res.status(403).json({
             error: true,
             status: 403,
             message: "The password you provided doesn't match the password required"
         });
-        return;
     }
 
     next()
 };
 
-app.use(bodyParser.json())
+app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send("OwO what are you doing here?")
-})
+    return res.status(200).send("OwO what are you doing here?");
+});
 
 app.post('/proxy/new', protectedRoute, (req, res) => {
-    let data = req.body;
-    let url = data.url;
-    let destination = data.destination;
-
-    let proxyFileTemplate = `<VirtualHost *:80>
-	ServerName ${url}
-	RewriteEngine On
-	RewriteCond %{HTTPS} !=on
-	RewriteRule ^/?(.*) https://${url}/$1 [R,L] 
-</VirtualHost>
-<VirtualHost *:443>
-	ServerName ${url}
-	ProxyRequests off
-	SSLProxyEngine on
-    ProxyPreserveHost On
-    SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/${url}/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/${url}/privkey.pem
-                                             
-    <Location />
-		ProxyPass ${destination}
-        ProxyPassReverse ${destination}
-    </Location>
-</VirtualHost>`
-
-    if (!(url || destination)) {
-        res.status(204).json({
+    if (!req.body || !req.body.url || !req.body.destination) {
+        return res.status(400).json({
             error: true,
-            status: 204,
+            status: 400,
             message: "You did not provide proper data"
-        })
-        return;
+        });
     }
 
+    const { url, destination } = req.body;
+
+    const proxyFileTemplate = template.replaceAll('{url}', url).replaceAll('{destination}', destination);
+
     exec('certbot certonly -d ' + url + ' --non-interactive --webroot --webroot-path /var/www/html --agree-tos -m proxy@danbot.host', (error, stdout) => {
-        let response = (error || stdout);
+        const response = (error || stdout);
 
         if (response.includes("Congratulations!")) {
-            fs.writeFileSync(`${proxyFileDir}/${url}.conf`, proxyFileTemplate)
-            exec('service apache2 restart', (error, stdout) => {})
+            writeFileSync(`${proxyFileDir}/${url}.conf`, proxyFileTemplate);
+            exec('service apache2 restart', (error) => { if(error) return console.log('Problem restarting apache2!\n', error)});
 
-            res.status(200).json({
+            return res.status(200).json({
                 error: false,
                 status: 200,
                 message: "Successfully linked domain."
-            })
+            });
         } else if (response.includes("Certificate not yet due for renewal")) {
-            fs.writeFileSync(`${proxyFileDir}/${url}.conf`, proxyFileTemplate)
-            exec('service apache2 restart', (error, stdout) => {})
+            writeFileSync(`${proxyFileDir}/${url}.conf`, proxyFileTemplate);
+            exec('service apache2 restart', (error) => { if(error) return console.log('Problem restarting apache2!\n', error)});
 
-            res.status(200).json({
+            return res.status(200).json({
                 error: false,
                 status: 200,
                 message: "Successfully linked domain."
-            })
+            });
         } else {
-            res.status(500).json({
+            return res.status(500).json({
                 error: true,
                 status: 500,
                 message: "Something went wrong."
-            })
+            });
         }
     })
     
-})
+});
 
 app.post('/proxy/delete', protectedRoute, (req, res) => {
-    let { url } = req.body;
-
-    if (!url) {
-        res.status(204).json({
+    if (!req.body || !req.body.url) {
+        return res.status(400).json({
             error: true,
-            status: 204,
+            status: 400,
             message: "You did not provide proper data"
         })
-        return;
     }
 
-    fs.unlinkSync(`${proxyFileDir}/${url}.conf`)
-    exec('service apache2 restart', (error, stdout) => {})
+    const { url } = req.body;
 
-    res.status(200).json({
+    fs.unlinkSync(`${proxyFileDir}/${url}.conf`)
+    exec('service apache2 restart', (error) => { if(error) return console.log('Problem restarting apache2!\n', error)});
+
+    return res.status(200).json({
         error: false,
         status: 200,
         message: "Successfully unlinked domain."
-    })
-})
+    });
+});
 
 app.listen(port, () => {
     console.log(`Reverse Proxy Daemon Running On Port ${port}`);
-})
+});

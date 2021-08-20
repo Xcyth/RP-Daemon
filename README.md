@@ -29,7 +29,7 @@ P.S: add sudo before the commands only if you aren't logged in as `root` and hav
  7. Finally start the daemon by running `systemctl start proxy` and run `ps -ef | grep -v grep | grep proxy | awk '{ print $2 }' > proxy.pid` to generate the PID file
 
 # Contributing
-If you would like to contribute to this repository, feel free to make pull requests/
+If you would like to contribute to this repository, feel free to make a pull request.
 
 # Bug Reports
 If you find any security vulnerabilities please email me at [xcyth@danbot.host](mailto://xcyth@danbot.host) or join the discord [server](https://discord.gg/dbh)
