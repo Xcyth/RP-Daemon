@@ -1,0 +1,4 @@
+{
+    "port": 777,
+    "password": "Password which will be used to authenticate the requests"
+}

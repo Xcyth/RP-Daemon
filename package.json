@@ -1,0 +1,13 @@
+{
+  "name": "rp-daemon",
+  "version": "1.0.0",
+  "description": "A Node.js application made to proxy websites using the apache2 module.",
+  "main": "index.js",
+  "keywords": [],
+  "author": "xcyth@danbot.host",
+  "license": "MIT",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "express": "^4.17.1"
+  }
+}
