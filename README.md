@@ -18,7 +18,7 @@ P.S: add sudo before the commands only if you aren't logged in as `root` and hav
    #Group=some_group
    WorkingDirectory=/root/RP-Daemon
    LimitNOFILE=4096
-   PIDFile=/root/RP-Daemon/daemon.pid
+   PIDFile=/root/RP-Daemon/proxy.pid
    ExecStart=/usr/bin/node /root/RP-Daemon/src/index.js
    Restart=always
    
