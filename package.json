@@ -4,7 +4,7 @@
   "description": "This is a Node.js application made to proxy websites using the apache2 module..",
   "main": "src/index.js",
   "keywords": [],
-  "author": "xcyth@danbot.host",
+  "author": "xcyth@xcyth.xyz",
   "license": "MIT",
   "dependencies": {
     "child_process": "^1.0.2",
