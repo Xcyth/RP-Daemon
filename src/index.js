@@ -131,7 +131,7 @@ app.post('/proxy/delete', protectedRoute, (req, res) => {
 
     const { url } = req.body;
 
-    fs.unlinkSync(`${proxyFileDir}/${url}.conf`)
+    unlinkSync(`${proxyFileDir}/${url}.conf`)
     exec('service apache2 restart', (error) => { if(error) return console.log('Problem restarting apache2!\n', error)});
 
     res.status(200).json({
