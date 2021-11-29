@@ -1,6 +1,6 @@
 const express = require('express');
 const { join } = require('path');
-const { writeFileSync } = require('fs');
+const fs = require('fs');
 const { exec } = require('child_process');
 const app = express();
 const db = require('quick.db');
@@ -131,7 +131,7 @@ app.post('/proxy/delete', protectedRoute, (req, res) => {
 
     const { url } = req.body;
 
-    unlinkSync(`${proxyFileDir}/${url}.conf`)
+    fs.unlinkSync(`${proxyFileDir}/${url}.conf`)
     exec('service apache2 restart', (error) => { if(error) return console.log('Problem restarting apache2!\n', error)});
 
     res.status(200).json({
