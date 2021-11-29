@@ -1,6 +1,6 @@
 const express = require('express');
 const { join } = require('path');
-const { writeFileSync } = require('fs');
+const fs = require('fs');
 const { exec } = require('child_process');
 const app = express();
 const db = require('quick.db');
